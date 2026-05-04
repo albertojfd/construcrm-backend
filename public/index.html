@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConstruCRM — Sistema de Gestión</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f0f0f;--surface:#181818;--surface2:#222222;--surface3:#2a2a2a;
+  --border:#2e2e2e;--border2:#3a3a3a;--text:#f0ede8;--text2:#9a9690;--text3:#5a5753;
+  --accent:#e8a24a;--accent2:#d4924a;
+  --green:#4caf7d;--green-bg:rgba(76,175,125,.12);
+  --red:#e05c5c;--red-bg:rgba(224,92,92,.12);
+  --amber:#e8a24a;--amber-bg:rgba(232,162,74,.12);
+  --blue:#5b9bd5;--blue-bg:rgba(91,155,213,.12);
+  --gray-bg:rgba(90,87,83,.18);
+  --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
+  --r:8px;--r2:12px;--sidebar:220px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;font-size:14px}
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.logo{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
+.logo-mark{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:18px;height:18px}
+.logo-name{font-size:15px;font-weight:600;color:var(--text);letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:var(--text3);font-family:var(--mono);letter-spacing:.5px;margin-top:1px}
+.nav-group{padding:12px 10px 0;flex:1;overflow-y:auto}
+.nav-label{font-size:10px;font-family:var(--mono);color:var(--text3);letter-spacing:1px;padding:0 10px;margin-bottom:4px;margin-top:10px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r);cursor:pointer;color:var(--text2);font-size:13.5px;font-weight:400;transition:all .15s;border:none;background:none;width:100%;text-align:left;margin-bottom:1px}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--surface3);color:var(--text);font-weight:500}
+.nav-item.active .nav-dot{background:var(--accent)}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:transparent;transition:background .15s;flex-shrink:0}
+.nav-icon{width:16px;height:16px;opacity:.7;flex-shrink:0}
+.nav-item.active .nav-icon{opacity:1}
+.nav-badge{margin-left:auto;font-size:10px;font-family:var(--mono);background:var(--amber-bg);color:var(--amber);padding:2px 6px;border-radius:10px}
+.sidebar-footer{padding:14px 10px;border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);cursor:pointer}
+.user-card:hover{background:var(--surface2)}
+.user-name{font-size:12.5px;font-weight:500}
+.user-role{font-size:10.5px;color:var(--text3)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.page-title{font-size:15px;font-weight:500}
+.breadcrumb{font-size:12px;color:var(--text3);font-family:var(--mono)}
+.back-btn{display:none;align-items:center;gap:6px;background:none;border:1px solid var(--border2);color:var(--text2);cursor:pointer;font-size:12px;font-family:var(--font);padding:5px 10px;border-radius:var(--r);transition:all .15s}
+.back-btn:hover{background:var(--surface2);color:var(--text)}
+.back-btn.visible{display:flex}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.btn{padding:7px 14px;border-radius:var(--r);font-size:13px;font-family:var(--font);font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--accent);color:#0f0f0f}
+.btn-primary:hover{background:var(--accent2)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:6px 12px;width:200px}
+.search-bar input{background:none;border:none;outline:none;color:var(--text);font-size:13px;font-family:var(--font);width:100%}
+.search-bar input::placeholder{color:var(--text3)}
+.content{flex:1;overflow-y:auto;padding:24px}
+.section{display:none}
+.section.active{display:block}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;position:relative;overflow:hidden;transition:border-color .15s,transform .12s}
+.metric-card.clickable{cursor:pointer}
+.metric-card.clickable:hover{border-color:var(--border2);transform:translateY(-1px)}
+.metric-card.clickable.selected{border-width:1.5px}
+.metric-card.c-blue.selected{border-color:var(--blue);background:rgba(91,155,213,.06)}
+.metric-card.c-amber.selected{border-color:var(--amber);background:rgba(232,162,74,.06)}
+.metric-card.c-green.selected{border-color:var(--green);background:rgba(76,175,125,.06)}
+.metric-card.c-red.selected{border-color:var(--red);background:rgba(224,92,92,.06)}
+.metric-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.metric-card.c-amber::after{background:var(--amber)}
+.metric-card.c-green::after{background:var(--green)}
+.metric-card.c-blue::after{background:var(--blue)}
+.metric-card.c-red::after{background:var(--red)}
+.filter-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.filter-label{font-size:12px;color:var(--text3);font-family:var(--mono)}
+.filter-label span{color:var(--text2);font-weight:500}
+.metric-label{font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.metric-value{font-size:26px;font-weight:300;color:var(--text);letter-spacing:-1px}
+.metric-sub{font-size:11.5px;color:var(--text3);margin-top:4px}
+.metric-sub.up{color:var(--green)}
+.metric-sub.down{color:var(--red)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:16px}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-title{font-size:13.5px;font-weight:500;color:var(--text)}
+.card-body-pad{padding:16px 18px}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:10px 16px;text-align:left;font-size:11px;font-family:var(--mono);color:var(--text3);letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--surface2);font-weight:400}
+.data-table td{padding:11px 16px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr.clickable:hover td{background:var(--surface2);color:var(--text);cursor:pointer}
+.name-col{color:var(--text)!important;font-weight:500}
+.mono{font-family:var(--mono);font-size:12px}
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.badge-green{background:var(--green-bg);color:var(--green)}.badge-green::before{background:var(--green)}
+.badge-amber{background:var(--amber-bg);color:var(--amber)}.badge-amber::before{background:var(--amber)}
+.badge-red{background:var(--red-bg);color:var(--red)}.badge-red::before{background:var(--red)}
+.badge-blue{background:var(--blue-bg);color:var(--blue)}.badge-blue::before{background:var(--blue)}
+.badge-gray{background:var(--gray-bg);color:var(--text2)}.badge-gray::before{background:var(--text3)}
+.badge-purple{background:rgba(123,111,173,.15);color:#7b6fad}.badge-purple::before{background:#7b6fad}
+.proj-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.proj-card:hover{border-color:var(--accent)}
+.proj-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.proj-name{font-size:14px;font-weight:500;color:var(--text)}
+.proj-client{font-size:12px;color:var(--text3);margin-top:2px}
+.proj-meta{display:flex;gap:18px;font-size:12px;color:var(--text3);margin-top:8px;flex-wrap:wrap}
+.proj-meta span strong{color:var(--text2)}
+.proj-bar{margin:10px 0 3px;height:4px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.proj-bar-fill{height:100%;border-radius:2px}
+.proj-pct{font-size:11px;color:var(--text3);font-family:var(--mono)}
+/* DETAIL */
+.detail-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.detail-title{font-size:20px;font-weight:500;color:var(--text);letter-spacing:-.4px}
+.detail-sub{font-size:13px;color:var(--text3);margin-top:4px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.detail-grid.three{grid-template-columns:1fr 1fr 1fr}
+.info-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px 18px;margin-bottom:16px}
+.info-block:last-child{margin-bottom:0}
+.info-block-title{font-size:11px;font-family:var(--mono);color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.info-row:last-child{border-bottom:none}
+.info-key{font-size:12.5px;color:var(--text3)}
+.info-val{font-size:13px;font-weight:500;color:var(--text);text-align:right}
+.link-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:4px 12px 4px 8px;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;margin:3px}
+.link-chip:hover{background:var(--surface3);color:var(--text);border-color:var(--accent)}
+.link-chip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.supplier-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.supplier-row:last-child{border-bottom:none}
+.supplier-row:hover .supplier-name{color:var(--accent)}
+.supplier-name{font-size:13px;font-weight:500;color:var(--text);transition:color .15s}
+.supplier-cat{font-size:11.5px;color:var(--text3);margin-top:1px}
+.supplier-amt{font-size:12px;font-family:var(--mono);color:var(--text2);margin-left:auto;margin-right:6px}
+.person-row{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+.person-row:last-child{border-bottom:none}
+.person-row:hover{background:var(--surface2)}
+.person-info{flex:1}
+.person-name{font-size:13.5px;font-weight:500;color:var(--text)}
+.person-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.av-a{background:#1a3a5c;color:var(--blue)}
+.av-b{background:#1a3a2a;color:var(--green)}
+.av-c{background:#3a2a10;color:var(--amber)}
+.av-d{background:#3a1a1a;color:var(--red)}
+.av-e{background:#2a2a1a;color:#c4b86a}
+.progress-wide{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-top:6px}
+.progress-wide-fill{height:100%;border-radius:3px}
+.section-actions{display:flex;justify-content:flex-end;margin-bottom:14px}
+/* LEADS */
+.pipeline{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:24px;align-items:start}
+.pipeline-col{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden}
+.pipeline-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.pipeline-head-label{font-size:12px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:7px}
+.pipeline-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pipeline-count{font-size:10px;font-family:var(--mono);background:var(--surface3);color:var(--text2);padding:2px 7px;border-radius:10px}
+.lead-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;margin:8px;cursor:pointer;transition:border-color .15s}
+.lead-card:hover{border-color:var(--accent)}
+.lead-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.lead-co{font-size:11.5px;color:var(--text3);margin-bottom:7px}
+.lead-meta{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text3)}
+.lead-val{font-family:var(--mono);color:var(--text2);font-size:11.5px}
+.lead-score{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:500}
+.score-hot{background:rgba(224,92,92,.15);color:var(--red)}
+.score-warm{background:rgba(232,162,74,.15);color:var(--amber)}
+.score-cold{background:rgba(91,155,213,.15);color:var(--blue)}
+.lead-avatar{width:22px;height:22px;border-radius:50%;font-size:9px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tab-bar{display:flex;gap:2px;background:var(--surface2);border-radius:var(--r);padding:3px;margin-bottom:18px;width:fit-content}
+.tab-btn{padding:6px 16px;border-radius:6px;font-size:12.5px;font-family:var(--font);border:none;background:transparent;color:var(--text3);cursor:pointer;transition:all .15s}
+.tab-btn.active{background:var(--surface);color:var(--text);font-weight:500}
+.filter-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.filter-label{font-size:12px;color:var(--text3);font-family:var(--mono)}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:80px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:3px 3px 0 0;background:var(--surface3);transition:background .2s;cursor:default}
+.bar:hover{background:var(--accent)}
+.bar-lbl{font-size:10px;font-family:var(--mono);color:var(--text3)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);width:500px;max-height:80vh;overflow-y:auto;transform:translateY(10px);transition:transform .2s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-size:15px;font-weight:500}
+.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:20px;line-height:1;padding:0 4px}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:20px}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:11px;font-family:var(--mono);color:var(--text3);letter-spacing:.5px;text-transform:uppercase}
+.form-input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;font-size:13px;font-family:var(--font);color:var(--text);outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--accent)}
+.form-input::placeholder{color:var(--text3)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--text);z-index:200;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg viewBox="0 0 18 18" fill="none"><rect x="2" y="10" width="4" height="6" fill="#0f0f0f"/><rect x="7" y="7" width="4" height="9" fill="#0f0f0f"/><rect x="12" y="4" width="4" height="12" fill="#0f0f0f"/><rect x="1" y="15" width="16" height="1.5" rx=".5" fill="#0f0f0f"/></svg>
+      </div>
+      <div><div class="logo-name">ConstruCRM</div><div class="logo-sub">v2.1 · ES</div></div>
+    </div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">General</div>
+    <button class="nav-item active" onclick="showSection('inicio')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5L1.5 7V14.5h4v-4h5v4h4V7L8 1.5z"/></svg>Inicio<div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" onclick="showSection('leads')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 12V4l5 4 5-4v8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="13" cy="4" r="2" fill="currentColor"/></svg>Leads<span class="nav-badge">8</span>
+    </button>
+    <button class="nav-item" onclick="showSection('clientes')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="6" cy="5" r="2.5"/><path d="M1.5 13c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/><circle cx="12" cy="5" r="2"/><path d="M14.5 13c0-2-1.5-3.5-3.5-3.5"/></svg>Clientes<div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" onclick="showSection('proyectos')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><rect x="1.5" y="3" width="13" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 7h6M5 10h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Proyectos<div class="nav-dot"></div>
+    </button>
+    <div class="nav-label">Finanzas</div>
+    <button class="nav-item" onclick="showSection('presupuestos')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5 6h6M5 9h4M5 12h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Presupuestos<div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" onclick="showSection('pagos')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="4" width="14" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1 7.5h14" stroke="currentColor" stroke-width="1.4"/><circle cx="4.5" cy="10.5" r="1" fill="currentColor"/></svg>Pagos<span class="nav-badge">2</span>
+    </button>
+    <div class="nav-label">Recursos</div>
+    <button class="nav-item" onclick="showSection('empleados')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="5" r="3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 14c0-3 2.7-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>Empleados<div class="nav-dot"></div>
+    </button>
+    <button class="nav-item" onclick="showSection('proveedores')">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 5l3-3h6l3 3v7a1 1 0 01-1 1H3a1 1 0 01-1-1V5z" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 13V8h4v5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Proveedores<div class="nav-dot"></div>
+    </button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="av av-a" style="width:30px;height:30px;font-size:11px">AM</div>
+      <div><div class="user-name">Admin</div><div class="user-role">Gerente General</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="back-btn" id="back-btn" onclick="goBack()">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2L3 6.5 8 11"/></svg>Volver
+      </button>
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="breadcrumb" id="breadcrumb">/ inicio</div>
+    </div>
+    <div class="topbar-right">
+      <div class="search-bar">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><path d="M10 10l2.5 2.5"/></svg>
+        <input type="text" placeholder="Buscar...">
+      </div>
+      <button class="btn btn-ghost" onclick="openModal()">+ Nuevo</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- INICIO -->
+    <div id="inicio" class="section active">
+      <div class="metrics-grid">
+        <div class="metric-card c-amber"><div class="metric-label">Clientes Activos</div><div class="metric-value">24</div><div class="metric-sub up">↑ 3 este mes</div></div>
+        <div class="metric-card c-blue"><div class="metric-label">Proyectos en Curso</div><div class="metric-value">8</div><div class="metric-sub down">2 con retraso</div></div>
+        <div class="metric-card c-green"><div class="metric-label">Facturado (mes)</div><div class="metric-value">$380K</div><div class="metric-sub up">↑ 12% vs anterior</div></div>
+        <div class="metric-card c-red"><div class="metric-label">Cuentas Vencidas</div><div class="metric-value">$48K</div><div class="metric-sub down">2 facturas</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Proyectos activos</span><button class="btn btn-ghost" style="font-size:12px;padding:4px 10px" onclick="showSection('proyectos')">Ver todos</button></div>
+          <div>
+            <div style="padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('proyecto','brickell')">
+              <div class="proj-top"><div><div class="proj-name">Torre Residencial Brickell</div><div class="proj-client">Inversiones Caribe LLC</div></div><span class="badge badge-blue">En progreso</span></div>
+              <div class="proj-bar"><div class="proj-bar-fill" style="width:68%;background:var(--blue)"></div></div>
+              <div class="proj-pct">68% · $2.4M</div>
+            </div>
+            <div style="padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('proyecto','doral')">
+              <div class="proj-top"><div><div class="proj-name">Almacén Industrial Doral</div><div class="proj-client">LogiPak Corp</div></div><span class="badge badge-amber">Retraso</span></div>
+              <div class="proj-bar"><div class="proj-bar-fill" style="width:40%;background:var(--amber)"></div></div>
+              <div class="proj-pct">40% · $890K</div>
+            </div>
+            <div style="padding:13px 16px;cursor:pointer" onclick="openDetail('proyecto','beach')">
+              <div class="proj-top"><div><div class="proj-name">Oficinas Miami Beach</div><div class="proj-client">BeachView Partners</div></div><span class="badge badge-gray">Por iniciar</span></div>
+              <div class="proj-bar"><div class="proj-bar-fill" style="width:5%;background:var(--text3)"></div></div>
+              <div class="proj-pct">5% · $320K</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Ingresos — últimos 6 meses</span></div>
+          <div class="card-body-pad">
+            <div class="bar-chart">
+              <div class="bar-col"><div class="bar" style="height:45px"></div><span class="bar-lbl">Nov</span></div>
+              <div class="bar-col"><div class="bar" style="height:60px"></div><span class="bar-lbl">Dic</span></div>
+              <div class="bar-col"><div class="bar" style="height:38px"></div><span class="bar-lbl">Ene</span></div>
+              <div class="bar-col"><div class="bar" style="height:55px"></div><span class="bar-lbl">Feb</span></div>
+              <div class="bar-col"><div class="bar" style="height:48px"></div><span class="bar-lbl">Mar</span></div>
+              <div class="bar-col"><div class="bar" style="height:80px;background:var(--amber)"></div><span class="bar-lbl">Abr</span></div>
+            </div>
+            <div style="margin-top:16px">
+              <div class="info-row"><span class="info-key">Mejor mes</span><span class="info-val" style="color:var(--amber)">Abril · $380K</span></div>
+              <div class="info-row"><span class="info-key">Promedio mensual</span><span class="info-val">$287K</span></div>
+              <div class="info-row"><span class="info-key">Total semestre</span><span class="info-val">$1.72M</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div id="leads" class="section">
+      <div class="metrics-grid" style="grid-template-columns:repeat(5,1fr)">
+        <div class="metric-card c-blue clickable" id="lfilt-todos" onclick="filterLeads('todos')">
+          <div class="metric-label">Leads totales</div><div class="metric-value">8</div>
+          <div class="metric-sub">clic para ver todos</div>
+        </div>
+        <div class="metric-card c-amber clickable" id="lfilt-pipeline" onclick="filterLeads('pipeline')">
+          <div class="metric-label">Valor pipeline</div><div class="metric-value">$4.2M</div>
+          <div class="metric-sub">activos en proceso</div>
+        </div>
+        <div class="metric-card c-green clickable" id="lfilt-cierre" onclick="filterLeads('cierre')">
+          <div class="metric-label">Tasa de cierre</div><div class="metric-value">25%</div>
+          <div class="metric-sub up">ver leads en negociación</div>
+        </div>
+        <div class="metric-card c-red clickable" id="lfilt-perdidos" onclick="filterLeads('perdidos')">
+          <div class="metric-label">Perdidos</div><div class="metric-value">2</div>
+          <div class="metric-sub down">ver leads fríos</div>
+        </div>
+        <div class="metric-card c-red clickable" id="lfilt-descartados" onclick="filterLeads('descartados')" style="--red:#c94040">
+          <div class="metric-label">Descartados</div><div class="metric-value">0</div>
+          <div class="metric-sub down">sin potencial</div>
+        </div>
+      </div>
+      <div id="lead-filter-banner" style="display:none;align-items:center;justify-content:space-between;margin-bottom:14px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r)">
+        <span id="lead-filter-text" style="font-size:12px;color:var(--text2);font-family:var(--mono)"></span>
+        <button class="btn btn-ghost" onclick="filterLeads(null)" style="font-size:12px;padding:4px 10px">&#x2715; Limpiar</button>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchLeadView('kanban',this)">Pipeline Kanban</button>
+          <button class="tab-btn" onclick="switchLeadView('tabla',this)">Tabla</button>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('lead')">+ Nuevo lead</button>
+      </div>
+
+      <!-- KANBAN -->
+      <div id="leads-kanban">
+        <div class="pipeline" id="kanban-grid"></div>
+      </div>
+
+      <!-- TABLA -->
+      <div id="leads-tabla" style="display:none">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Todos los leads</span></div>
+          <table class="data-table">
+            <thead><tr><th>Nombre / Empresa</th><th>Tipo obra</th><th>Valor est.</th><th>Etapa</th><th>Temperatura</th><th>Acciones</th><th>Asignado a</th><th>Último contacto</th></tr></thead>
+            <tbody id="leads-tabla-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CLIENTES -->
+    <div id="clientes" class="section">
+      <div class="three-col">
+        <div class="metric-card c-blue"><div class="metric-label">Total</div><div class="metric-value">24</div></div>
+        <div class="metric-card c-green"><div class="metric-label">Activos</div><div class="metric-value">18</div></div>
+        <div class="metric-card c-amber"><div class="metric-label">Prospectos</div><div class="metric-value">6</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Directorio de clientes</span><button class="btn btn-primary" onclick="openModal('cliente')">+ Nuevo cliente</button></div>
+        <table class="data-table">
+          <thead><tr><th>Empresa / Contacto</th><th>Email</th><th>Teléfono</th><th>Proyectos</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr class="clickable" onclick="openDetail('cliente','caribe')"><td class="name-col">Inversiones Caribe LLC</td><td class="mono">carlos.vega@caribe.com</td><td class="mono">+1 305 555 0101</td><td>2</td><td><span class="badge badge-blue">VIP</span></td></tr>
+            <tr class="clickable" onclick="openDetail('cliente','logipak')"><td class="name-col">LogiPak Corp</td><td class="mono">mgomez@logipak.com</td><td class="mono">+1 786 555 0234</td><td>1</td><td><span class="badge badge-green">Activo</span></td></tr>
+            <tr class="clickable" onclick="openDetail('cliente','beachview')"><td class="name-col">BeachView Partners</td><td class="mono">info@beachview.com</td><td class="mono">+1 305 555 0876</td><td>1</td><td><span class="badge badge-green">Activo</span></td></tr>
+            <tr class="clickable" onclick="openDetail('cliente','rodriguez')"><td class="name-col">María Rodríguez</td><td class="mono">m.rodriguez@gmail.com</td><td class="mono">+1 305 555 0399</td><td>0</td><td><span class="badge badge-amber">Prospecto</span></td></tr>
+            <tr class="clickable" onclick="openDetail('cliente','miamidev')"><td class="name-col">MiamiDev LLC</td><td class="mono">dev@miamillc.us</td><td class="mono">+1 305 555 0712</td><td>3</td><td><span class="badge badge-green">Activo</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROYECTOS -->
+    <div id="proyectos" class="section">
+      <div class="metrics-grid">
+        <div class="metric-card c-blue clickable" id="filt-En progreso" onclick="filterProyectos('En progreso')">
+          <div class="metric-label">En progreso</div><div class="metric-value">5</div><div class="metric-sub">clic para filtrar</div>
+        </div>
+        <div class="metric-card c-amber clickable" id="filt-Retraso" onclick="filterProyectos('Retraso')">
+          <div class="metric-label">Con retraso</div><div class="metric-value">2</div><div class="metric-sub">clic para filtrar</div>
+        </div>
+        <div class="metric-card c-green clickable" id="filt-Completado" onclick="filterProyectos('Completado')">
+          <div class="metric-label">Completados</div><div class="metric-value">12</div><div class="metric-sub">clic para filtrar</div>
+        </div>
+        <div class="metric-card c-red clickable" id="filt-Cancelado" onclick="filterProyectos('Cancelado')">
+          <div class="metric-label">Cancelados</div><div class="metric-value">1</div><div class="metric-sub">clic para filtrar</div>
+        </div>
+      </div>
+      <div class="filter-bar">
+        <div class="filter-label" id="filter-label">Mostrando <span id="filter-label-text">todos los proyectos</span></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-ghost" id="clear-filter-btn" onclick="filterProyectos(null)" style="display:none;font-size:12px;padding:4px 10px">&#x2715; Limpiar filtro</button>
+          <button class="btn btn-primary" onclick="openModal('proyecto')">+ Nuevo proyecto</button>
+        </div>
+      </div>
+      <div id="proj-list">
+        <div class="proj-card" data-status="En progreso" onclick="openDetail('proyecto','brickell')">
+          <div class="proj-top"><div><div class="proj-name">Torre Residencial Brickell</div><div class="proj-client">Cliente: Inversiones Caribe LLC &middot; Líder: Ing. Raúl Méndez</div></div><span class="badge badge-blue">En progreso</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>Ene 2025</strong></span><span>Fin: <strong>Dic 2025</strong></span><span>Equipo: <strong>14</strong></span><span>$2.4M</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:68%;background:var(--blue)"></div></div>
+          <div class="proj-pct">68% completado</div>
+        </div>
+        <div class="proj-card" data-status="Retraso" onclick="openDetail('proyecto','doral')">
+          <div class="proj-top"><div><div class="proj-name">Almacén Industrial Doral</div><div class="proj-client">Cliente: LogiPak Corp &middot; Líder: Ing. Sandra Torres</div></div><span class="badge badge-amber">Retraso</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>Mar 2025</strong></span><span>Fin: <strong>Oct 2025</strong></span><span>Equipo: <strong>9</strong></span><span>$890K</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:40%;background:var(--amber)"></div></div>
+          <div class="proj-pct">40% completado</div>
+        </div>
+        <div class="proj-card" data-status="En progreso" onclick="openDetail('proyecto','beach')">
+          <div class="proj-top"><div><div class="proj-name">Remodelación Oficinas Miami Beach</div><div class="proj-client">Cliente: BeachView Partners &middot; Líder: Por asignar</div></div><span class="badge badge-blue">En progreso</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>May 2025</strong></span><span>Fin: <strong>Ago 2025</strong></span><span>Equipo: <strong>6</strong></span><span>$320K</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:5%;background:var(--blue)"></div></div>
+          <div class="proj-pct">5% completado</div>
+        </div>
+        <div class="proj-card" data-status="Completado" onclick="openDetail('proyecto','kendall')">
+          <div class="proj-top"><div><div class="proj-name">Complejo Residencial Kendall</div><div class="proj-client">Cliente: MiamiDev LLC &middot; Líder: Ing. Carlos Fuentes</div></div><span class="badge badge-green">Completado</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>Jun 2024</strong></span><span>Fin: <strong>Feb 2025</strong></span><span>Equipo: <strong>21</strong></span><span>$4.1M</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:100%;background:var(--green)"></div></div>
+          <div class="proj-pct">100% completado</div>
+        </div>
+        <div class="proj-card" data-status="En progreso" onclick="">
+          <div class="proj-top"><div><div class="proj-name">Torre Corporativa Wynwood</div><div class="proj-client">Cliente: Grupo Horizon SA &middot; Líder: Ing. Raúl Méndez</div></div><span class="badge badge-blue">En progreso</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>Feb 2025</strong></span><span>Fin: <strong>Nov 2025</strong></span><span>Equipo: <strong>18</strong></span><span>$1.8M</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:22%;background:var(--blue)"></div></div>
+          <div class="proj-pct">22% completado</div>
+        </div>
+        <div class="proj-card" data-status="En progreso" onclick="">
+          <div class="proj-top"><div><div class="proj-name">Centro Comercial Hialeah</div><div class="proj-client">Cliente: Inversiones Caribe LLC &middot; Líder: Ing. Carlos Fuentes</div></div><span class="badge badge-blue">En progreso</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>Mar 2025</strong></span><span>Fin: <strong>Ene 2026</strong></span><span>Equipo: <strong>25</strong></span><span>$3.2M</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:15%;background:var(--blue)"></div></div>
+          <div class="proj-pct">15% completado</div>
+        </div>
+        <div class="proj-card" data-status="En progreso" onclick="">
+          <div class="proj-top"><div><div class="proj-name">Parque Residencial Sweetwater</div><div class="proj-client">Cliente: MiamiDev LLC &middot; Líder: Ing. Sandra Torres</div></div><span class="badge badge-blue">En progreso</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>Abr 2025</strong></span><span>Fin: <strong>Feb 2026</strong></span><span>Equipo: <strong>12</strong></span><span>$2.1M</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:8%;background:var(--blue)"></div></div>
+          <div class="proj-pct">8% completado</div>
+        </div>
+        <div class="proj-card" data-status="Retraso" onclick="">
+          <div class="proj-top"><div><div class="proj-name">Villas Residenciales Coral Gables</div><div class="proj-client">Cliente: MiamiDev LLC &middot; Líder: Ing. Sandra Torres</div></div><span class="badge badge-amber">Retraso</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>Ene 2025</strong></span><span>Fin: <strong>Sep 2025</strong></span><span>Equipo: <strong>11</strong></span><span>$1.2M</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:30%;background:var(--amber)"></div></div>
+          <div class="proj-pct">30% completado</div>
+        </div>
+        <div class="proj-card" data-status="Cancelado" onclick="">
+          <div class="proj-top"><div><div class="proj-name">Parque Industrial Medley</div><div class="proj-client">Cliente: LogiPak Corp &middot; Líder: Sin asignar</div></div><span class="badge badge-red">Cancelado</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>Oct 2024</strong></span><span>Fin: <strong>N/A</strong></span><span>Equipo: <strong>0</strong></span><span>$2.1M</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:12%;background:var(--red)"></div></div>
+          <div class="proj-pct">12% — cancelado por cliente</div>
+        </div>
+        <div class="proj-card" data-status="Completado" onclick="">
+          <div class="proj-top"><div><div class="proj-name">Apartamentos Sunset NW</div><div class="proj-client">Cliente: BeachView Partners &middot; Líder: Ing. Carlos Fuentes</div></div><span class="badge badge-green">Completado</span></div>
+          <div class="proj-meta"><span>Inicio: <strong>Ene 2024</strong></span><span>Fin: <strong>Oct 2024</strong></span><span>Equipo: <strong>16</strong></span><span>$2.8M</span></div>
+          <div class="proj-bar"><div class="proj-bar-fill" style="width:100%;background:var(--green)"></div></div>
+          <div class="proj-pct">100% completado</div>
+        </div>
+      </div>
+      <div id="no-results" style="display:none;text-align:center;padding:48px 20px;color:var(--text3);font-size:13px">
+        No hay proyectos con este estado registrados.
+      </div>
+    </div>
+
+    <!-- PRESUPUESTOS -->
+    <div id="presupuestos" class="section">
+      <div class="three-col">
+        <div class="metric-card c-green"><div class="metric-label">Aprobados</div><div class="metric-value">$3.6M</div></div>
+        <div class="metric-card c-amber"><div class="metric-label">Pendientes</div><div class="metric-value">$340K</div></div>
+        <div class="metric-card c-red"><div class="metric-label">Rechazados</div><div class="metric-value">$1.1M</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Cotizaciones</span><button class="btn btn-primary" onclick="openModal('presupuesto')">+ Nueva cotización</button></div>
+        <table class="data-table">
+          <thead><tr><th>Código</th><th>Proyecto / Cliente</th><th>Total</th><th>Fecha</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr class="clickable" onclick="openDetail('proyecto','brickell')"><td class="mono">COT-2025-041</td><td class="name-col">Torre Brickell — Inversiones Caribe</td><td class="mono">$2,400,000</td><td class="mono">10 Ene 2025</td><td><span class="badge badge-green">Aprobado</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proyecto','beach')"><td class="mono">COT-2025-058</td><td class="name-col">Oficinas Miami Beach — BeachView</td><td class="mono">$185,000</td><td class="mono">28 Abr 2025</td><td><span class="badge badge-amber">Pendiente</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proyecto','doral')"><td class="mono">COT-2025-035</td><td class="name-col">Almacén Doral — LogiPak Corp</td><td class="mono">$890,000</td><td class="mono">15 Feb 2025</td><td><span class="badge badge-amber">Pendiente</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proyecto','kendall')"><td class="mono">COT-2024-089</td><td class="name-col">Complejo Kendall — MiamiDev LLC</td><td class="mono">$4,100,000</td><td class="mono">01 Jun 2024</td><td><span class="badge badge-green">Aprobado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PAGOS -->
+    <div id="pagos" class="section">
+      <div class="metrics-grid">
+        <div class="metric-card c-green"><div class="metric-label">Cobrado (mes)</div><div class="metric-value">$380K</div></div>
+        <div class="metric-card c-amber"><div class="metric-label">Por cobrar</div><div class="metric-value">$142K</div></div>
+        <div class="metric-card c-red"><div class="metric-label">Vencido</div><div class="metric-value">$48K</div></div>
+        <div class="metric-card c-blue"><div class="metric-label">Facturas totales</div><div class="metric-value">34</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Seguimiento de facturas</span><button class="btn btn-primary" onclick="openModal('pago')">+ Nueva factura</button></div>
+        <table class="data-table">
+          <thead><tr><th>Factura</th><th>Cliente</th><th>Proyecto vinculado</th><th>Monto</th><th>Vencimiento</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr class="clickable" onclick="openDetail('proyecto','brickell')"><td class="mono">FAC-2025-118</td><td class="name-col">Inversiones Caribe</td><td>Torre Brickell — etapa 3</td><td class="mono">$85,000</td><td class="mono">15 May 2025</td><td><span class="badge badge-amber">Pendiente</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proyecto','doral')"><td class="mono">FAC-2025-097</td><td class="name-col">LogiPak Corp</td><td>Almacén Doral — etapa 2</td><td class="mono">$48,000</td><td class="mono">01 Abr 2025</td><td><span class="badge badge-red">Vencido</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proyecto','beach')"><td class="mono">FAC-2025-112</td><td class="name-col">BeachView Partners</td><td>Oficinas Miami — anticipo</td><td class="mono">$57,000</td><td class="mono">20 May 2025</td><td><span class="badge badge-amber">Pendiente</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proyecto','kendall')"><td class="mono">FAC-2025-108</td><td class="name-col">MiamiDev LLC</td><td>Complejo Kendall — cierre</td><td class="mono">$210,000</td><td class="mono">10 Abr 2025</td><td><span class="badge badge-green">Pagado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- EMPLEADOS -->
+    <div id="empleados" class="section">
+      <div class="three-col">
+        <div class="metric-card c-blue"><div class="metric-label">Total empleados</div><div class="metric-value">37</div></div>
+        <div class="metric-card c-amber"><div class="metric-label">En campo</div><div class="metric-value">28</div></div>
+        <div class="metric-card c-green"><div class="metric-label">Disponibles</div><div class="metric-value">9</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Equipo de trabajo</span><button class="btn btn-primary" onclick="openModal('empleado')">+ Nuevo empleado</button></div>
+        <div class="person-row"><div class="av av-a">RM</div><div class="person-info"><div class="person-name">Ing. Raúl Méndez</div><div class="person-sub">Contratista Líder · Torre Brickell</div></div><span class="badge badge-blue">Campo</span></div>
+        <div class="person-row"><div class="av av-b">ST</div><div class="person-info"><div class="person-name">Ing. Sandra Torres</div><div class="person-sub">Supervisora · Almacén Doral</div></div><span class="badge badge-amber">Campo</span></div>
+        <div class="person-row"><div class="av av-c">CF</div><div class="person-info"><div class="person-name">Ing. Carlos Fuentes</div><div class="person-sub">Contratista Líder · Disponible</div></div><span class="badge badge-green">Disponible</span></div>
+        <div class="person-row"><div class="av av-d">JP</div><div class="person-info"><div class="person-name">José Peralta</div><div class="person-sub">Operario · Torre Brickell</div></div><span class="badge badge-blue">Campo</span></div>
+        <div class="person-row"><div class="av av-e">LP</div><div class="person-info"><div class="person-name">Lucía Paz</div><div class="person-sub">Arquitecta · Oficinas Miami</div></div><span class="badge badge-gray">Planificación</span></div>
+      </div>
+    </div>
+
+    <!-- PROVEEDORES -->
+    <div id="proveedores" class="section">
+      <div class="three-col">
+        <div class="metric-card c-green"><div class="metric-label">Activos</div><div class="metric-value">12</div></div>
+        <div class="metric-card c-amber"><div class="metric-label">Cotizaciones activas</div><div class="metric-value">4</div></div>
+        <div class="metric-card c-blue"><div class="metric-label">Órdenes este mes</div><div class="metric-value">$89K</div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">Directorio de proveedores</span><button class="btn btn-primary" onclick="openModal('proveedor')">+ Nuevo proveedor</button></div>
+        <table class="data-table">
+          <thead><tr><th>Empresa</th><th>Categoría</th><th>Proyectos activos</th><th>Última orden</th><th>Estado</th></tr></thead>
+          <tbody>
+            <tr class="clickable" onclick="openDetail('proveedor','cemex')"><td class="name-col">Cemex Florida</td><td>Concreto y cemento</td><td>Torre Brickell, Doral, Kendall</td><td class="mono">$28K · 20 Abr</td><td><span class="badge badge-green">Activo</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proveedor','aceros')"><td class="name-col">Aceros del Sur</td><td>Varillas / estructuras</td><td>Almacén Doral</td><td class="mono">Cotización activa</td><td><span class="badge badge-amber">Negociando</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proveedor','electro')"><td class="name-col">ElectroBuild Miami</td><td>Materiales eléctricos</td><td>—</td><td class="mono">$12K · Dic 2024</td><td><span class="badge badge-gray">Inactivo</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proveedor','pinta')"><td class="name-col">PintaCorp FL</td><td>Pintura y acabados</td><td>Oficinas Miami, Kendall</td><td class="mono">$8K · Mar 2025</td><td><span class="badge badge-green">Activo</span></td></tr>
+            <tr class="clickable" onclick="openDetail('proveedor','ferreteria')"><td class="name-col">Ferretería Central</td><td>Herramientas</td><td>Torre Brickell</td><td class="mono">$4K · 28 Abr</td><td><span class="badge badge-green">Activo</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DETAIL -->
+    <div id="detail" class="section"></div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head"><span class="modal-title" id="modal-title">Nuevo registro</span><button class="modal-close" onclick="closeModal()">×</button></div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveModal()">Guardar</button></div>
+  </div>
+</div>
+<div class="toast" id="toast">Registro guardado correctamente</div>
+
+<script>
+const DB = {
+  proyectos: {
+    brickell:{nombre:'Torre Residencial Brickell',estado:'En progreso',badgeClass:'badge-blue',cliente:'caribe',clienteNombre:'Inversiones Caribe LLC',lider:'Ing. Raúl Méndez',inicio:'Ene 2025',fin:'Dic 2025',presupuesto:'$2,400,000',avance:68,equipo:14,cot:'COT-2025-041',facturas:['FAC-2025-118','FAC-2025-101'],proveedores:['cemex','ferreteria'],descripcion:'Edificio residencial de 22 pisos en Brickell, Miami. 180 unidades habitacionales, lobby de lujo y amenidades premium.'},
+    doral:{nombre:'Almacén Industrial Doral',estado:'Retraso',badgeClass:'badge-amber',cliente:'logipak',clienteNombre:'LogiPak Corp',lider:'Ing. Sandra Torres',inicio:'Mar 2025',fin:'Oct 2025',presupuesto:'$890,000',avance:40,equipo:9,cot:'COT-2025-035',facturas:['FAC-2025-097'],proveedores:['cemex','aceros'],descripcion:'Almacén industrial de 8,000 m² para logística y distribución. Retraso por demora en entrega de varillas estructurales de Aceros del Sur.'},
+    beach:{nombre:'Remodelación Oficinas Miami Beach',estado:'Por iniciar',badgeClass:'badge-gray',cliente:'beachview',clienteNombre:'BeachView Partners',lider:'Por asignar',inicio:'May 2025',fin:'Ago 2025',presupuesto:'$320,000',avance:5,equipo:6,cot:'COT-2025-058',facturas:['FAC-2025-112'],proveedores:['pinta'],descripcion:'Remodelación integral de 3 pisos de oficinas en Miami Beach. Diseño interior, instalaciones eléctricas y acabados premium.'},
+    kendall:{nombre:'Complejo Residencial Kendall',estado:'Completado',badgeClass:'badge-green',cliente:'miamidev',clienteNombre:'MiamiDev LLC',lider:'Ing. Carlos Fuentes',inicio:'Jun 2024',fin:'Feb 2025',presupuesto:'$4,100,000',avance:100,equipo:21,cot:'COT-2024-089',facturas:['FAC-2025-108'],proveedores:['cemex','aceros','pinta','ferreteria'],descripcion:'4 torres de 10 pisos con 320 unidades residenciales. Proyecto finalizado en tiempo y dentro del presupuesto.'}
+  },
+  clientes: {
+    caribe:{nombre:'Inversiones Caribe LLC',tipo:'Empresa',badgeClass:'badge-blue',badgeTxt:'VIP',contacto:'Carlos Vega',email:'carlos.vega@caribe.com',tel:'+1 305 555 0101',dir:'1200 Brickell Ave, Miami FL 33131',proyectos:['brickell']},
+    logipak:{nombre:'LogiPak Corp',tipo:'Empresa',badgeClass:'badge-green',badgeTxt:'Activo',contacto:'María Gómez',email:'mgomez@logipak.com',tel:'+1 786 555 0234',dir:'8400 NW 36th St, Doral FL 33166',proyectos:['doral']},
+    beachview:{nombre:'BeachView Partners',tipo:'Empresa',badgeClass:'badge-green',badgeTxt:'Activo',contacto:'Robert Klein',email:'info@beachview.com',tel:'+1 305 555 0876',dir:'1100 Collins Ave, Miami Beach FL 33139',proyectos:['beach']},
+    miamidev:{nombre:'MiamiDev LLC',tipo:'Empresa',badgeClass:'badge-green',badgeTxt:'Activo',contacto:'Ana Medina',email:'dev@miamillc.us',tel:'+1 305 555 0712',dir:'7890 SW 104th St, Miami FL 33156',proyectos:['kendall']},
+    rodriguez:{nombre:'María Rodríguez',tipo:'Particular',badgeClass:'badge-amber',badgeTxt:'Prospecto',contacto:'María Rodríguez',email:'m.rodriguez@gmail.com',tel:'+1 305 555 0399',dir:'2340 SW 8th St, Miami FL 33135',proyectos:[]}
+  },
+  proveedores: {
+    cemex:{nombre:'Cemex Florida',cat:'Concreto y cemento',badgeClass:'badge-green',badgeTxt:'Activo',contacto:'Luis Arenas',email:'larenas@cemex.com',tel:'+1 305 800 0100',plazo:'30 días',proyectos:['brickell','doral','kendall'],ordenes:[{desc:'Concreto estructural 400 m³',monto:'$28,000',fecha:'20 Abr 2025'},{desc:'Cemento Portland 120 sacos',monto:'$4,800',fecha:'10 Mar 2025'}]},
+    aceros:{nombre:'Aceros del Sur',cat:'Varillas / estructuras',badgeClass:'badge-amber',badgeTxt:'Negociando',contacto:'Pedro Soto',email:'psoto@acerosdelsur.com',tel:'+1 786 400 0220',plazo:'15 días',proyectos:['doral','kendall'],ordenes:[{desc:'Varillas #5 y #8 — 40 tons',monto:'$61,500',fecha:'Cotización activa'}]},
+    electro:{nombre:'ElectroBuild Miami',cat:'Materiales eléctricos',badgeClass:'badge-gray',badgeTxt:'Inactivo',contacto:'Diana Cruz',email:'dcruz@electrobuild.com',tel:'+1 305 560 0340',plazo:'Contado',proyectos:[],ordenes:[{desc:'Cables y tableros eléctricos',monto:'$12,000',fecha:'Dic 2024'}]},
+    pinta:{nombre:'PintaCorp FL',cat:'Pintura y acabados',badgeClass:'badge-green',badgeTxt:'Activo',contacto:'Sandra Gil',email:'sgil@pintacorp.com',tel:'+1 786 320 0450',plazo:'30 días',proyectos:['beach','kendall'],ordenes:[{desc:'Pintura interior/exterior — lote A',monto:'$8,000',fecha:'Mar 2025'},{desc:'Acabados premium Kendall',monto:'$21,000',fecha:'Ene 2025'}]},
+    ferreteria:{nombre:'Ferretería Central',cat:'Herramientas y fijaciones',badgeClass:'badge-green',badgeTxt:'Activo',contacto:'Jorge Pérez',email:'jperez@ferrcentral.com',tel:'+1 305 220 0560',plazo:'Contado',proyectos:['brickell','kendall'],ordenes:[{desc:'Tornillería y anclajes estructurales',monto:'$4,200',fecha:'28 Abr 2025'}]}
+  },
+  leads:{
+    estevez:{nombre:'Carlos Estévez',empresa:'Inmobiliaria Estévez',email:'cestevez@estevez.com',tel:'+1 305 411 0192',tipo:'Residencial',valor:'$1,200,000',etapa:'Calificado',badgeClass:'badge-blue',temp:'Caliente',tempClass:'score-hot',asignado:'Ing. Raúl Méndez',fuente:'Referido',ultimoContacto:'Ayer',fechaIngreso:'28 Abr 2025',descripcion:'Interesado en construir complejo de 8 viviendas unifamiliares en Pinecrest. Ya tiene terreno escriturado. Solicitó reunión para revisión de planos.',historial:[{fecha:'29 Abr',tipo:'Llamada',nota:'Primera llamada. Confirma presupuesto disponible. Quiere iniciar en julio.'},{fecha:'27 Abr',tipo:'Email',nota:'Envió planos preliminares del terreno para evaluación inicial.'},{fecha:'25 Abr',tipo:'Reunión',nota:'Reunión en oficina. Presentó el proyecto y preguntó por disponibilidad de equipo.'}],acciones:[{texto:'Enviar propuesta formal antes del 5 de mayo',hecho:false}]},
+    horizon:{nombre:'Grupo Horizon SA',empresa:'Grupo Horizon SA',email:'contacto@horizon.cr',tel:'+1 786 500 0300',tipo:'Comercial',valor:'$890,000',etapa:'Propuesta enviada',badgeClass:'badge-amber',temp:'Caliente',tempClass:'score-hot',asignado:'Admin',fuente:'Sitio web',ultimoContacto:'Hace 4 días',fechaIngreso:'25 Abr 2025',descripcion:'Empresa costarricense buscando construir centro comercial en Hialeah. Ya tienen financiamiento aprobado. Evalúan 2 constructoras en paralelo.',historial:[{fecha:'26 Abr',tipo:'Email',nota:'Enviamos propuesta COT-2025-063 por $890K. Confirmaron recepción.'},{fecha:'24 Abr',tipo:'Llamada',nota:'Llamada técnica con su ingeniero. Aclaramos especificaciones de estructura.'},{fecha:'22 Abr',tipo:'Reunión',nota:'Primera reunión. Presentaron el proyecto y solicitaron cotización.'}],acciones:[{texto:'Llamar el lunes para seguimiento de propuesta',hecho:false}]},
+    mendoza:{nombre:'Sofía Mendoza',empresa:'Grupo Mendoza SA',email:'smendoza@gmendoza.com',tel:'+1 305 622 0441',tipo:'Mixto',valor:'$650,000',etapa:'Calificado',badgeClass:'badge-blue',temp:'Tibio',tempClass:'score-warm',asignado:'Ing. Sandra Torres',fuente:'Referido',ultimoContacto:'Hace 3 días',fechaIngreso:'22 Abr 2025',descripcion:'Proyecto mixto: planta baja comercial y dos pisos de apartamentos en Doral. Aún evaluando si comprar el terreno.',historial:[{fecha:'27 Abr',tipo:'Email',nota:'Envió consulta sobre tiempos de construcción promedio para proyectos mixtos.'},{fecha:'23 Abr',tipo:'Llamada',nota:'Llamada de calificación. Confirmó presupuesto aproximado y ubicación del terreno.'}],acciones:[{texto:'Agendar visita al terreno con ingeniero',hecho:false}]},
+    nordika:{nombre:'Inversiones Nórdika',empresa:'Inversiones Nórdika',email:'nordika@inv.com',tel:'+1 786 310 0820',tipo:'Industrial',valor:'$540,000',etapa:'Propuesta enviada',badgeClass:'badge-amber',temp:'Tibio',tempClass:'score-warm',asignado:'Admin',fuente:'Evento / feria',ultimoContacto:'Hace 6 días',fechaIngreso:'18 Abr 2025',descripcion:'Fondo de inversión europeo con interés en construir almacén logístico en zona franca de Miami. Proyecto a mediano plazo.',historial:[{fecha:'24 Abr',tipo:'Email',nota:'Enviamos propuesta inicial. Sin respuesta aún.'},{fecha:'19 Abr',tipo:'Reunión',nota:'Contacto en feria de real estate. Intercambiamos tarjetas y fijamos seguimiento.'}],acciones:[{texto:'Reenviar propuesta con seguimiento esta semana',hecho:false}]},
+    alvarado:{nombre:'Juan Alvarado',empresa:'Desarrollos Norte LLC',email:'jalvarado@dnorte.com',tel:'+1 305 788 0551',tipo:'Residencial',valor:'$380,000',etapa:'Contactado',badgeClass:'badge-purple',temp:'Tibio',tempClass:'score-warm',asignado:'Ing. Carlos Fuentes',fuente:'Llamada entrante',ultimoContacto:'Hace 2 días',fechaIngreso:'28 Abr 2025',descripcion:'Desarrollador local interesado en 4 casas adosadas en Westchester. Primera llamada recibida. Quiere reunirse para explorar opciones.',historial:[{fecha:'28 Abr',tipo:'Llamada',nota:'Llamada entrante. Explicó el proyecto. Agendamos reunión de presentación.'}],acciones:[{texto:'Reunión presencial el 5 de mayo a las 10am',hecho:false}]},
+    maria:{nombre:'María Rodríguez',empresa:'Particular',email:'m.rodriguez@gmail.com',tel:'+1 305 555 0399',tipo:'Residencial',valor:'$220,000',etapa:'Negociación',badgeClass:'badge-green',temp:'Caliente',tempClass:'score-hot',asignado:'Admin',fuente:'Referido',ultimoContacto:'Hoy',fechaIngreso:'10 Abr 2025',descripcion:'Cliente particular que desea construir vivienda unifamiliar de 280m² en Miami Lakes. Ya aprobó el diseño arquitectónico. En proceso de negociar contrato.',historial:[{fecha:'3 May',tipo:'Llamada',nota:'Llamada de negociación. Aceptó el precio pero pide inicio en agosto.'},{fecha:'28 Abr',tipo:'Email',nota:'Revisamos contrato borrador. Pidió ajuste en cláusula de pagos.'},{fecha:'22 Abr',tipo:'Reunión',nota:'Revisión final de planos con arquitecto. Todo aprobado.'},{fecha:'15 Abr',tipo:'Email',nota:'Enviamos propuesta formal COT-2025-071.'}],acciones:[{texto:'Enviar contrato final firmado esta semana',hecho:false}]},
+    romero:{nombre:'Patricia Romero',empresa:'Romero & Asociados',email:'promero@romeroasoc.com',tel:'+1 786 441 0663',tipo:'Comercial',valor:'$210,000',etapa:'Contactado',badgeClass:'badge-purple',temp:'Frío',tempClass:'score-cold',asignado:'Ing. Raúl Méndez',fuente:'Red social',ultimoContacto:'Hace 5 días',fechaIngreso:'25 Abr 2025',descripcion:'Bufete de abogados interesado en remodelar oficinas. Proyecto pequeño con presupuesto limitado. Contacto inicial por Instagram.',historial:[{fecha:'25 Abr',tipo:'Email',nota:'Primer contacto. Envió mensaje por Instagram. Redirigimos a email oficial.'}],acciones:[{texto:'Calificar si tiene presupuesto real. Llamar esta semana',hecho:false}]},
+    diaz:{nombre:'Rafael Díaz',empresa:'Constructora Díaz',email:'rdiaz@constrdiaz.com',tel:'+1 305 321 0774',tipo:'Industrial',valor:'$95,000',etapa:'Nuevo contacto',badgeClass:'badge-gray',temp:'Frío',tempClass:'score-cold',asignado:'Ing. Sandra Torres',fuente:'Sitio web',ultimoContacto:'Hace 1 semana',fechaIngreso:'22 Abr 2025',descripcion:'Constructora local buscando subcontratar trabajos de acabados para un proyecto propio. Presupuesto ajustado.',historial:[{fecha:'23 Abr',tipo:'Email',nota:'Envió formulario web con detalles del proyecto. Volumen pequeño.'}],acciones:[{texto:'Evaluar si es rentable. Enviar información de servicios',hecho:false}]}
+  }
+};
+
+const avColors={caribe:'av-a',logipak:'av-b',beachview:'av-c',miamidev:'av-d',rodriguez:'av-e'};
+const avProv={cemex:'av-b',aceros:'av-c',electro:'av-a',pinta:'av-e',ferreteria:'av-d'};
+const provIcons={cemex:'CE',aceros:'AC',electro:'EL',pinta:'PI',ferreteria:'FC'};
+const barColors={'En progreso':'var(--blue)',Retraso:'var(--amber)',Completado:'var(--green)','Por iniciar':'var(--text3)'};
+
+let navHistory=[];
+let currentSection='inicio';
+
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b=>{
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes(`'${id}'`))b.classList.add('active');
+  });
+  const titles={inicio:'Dashboard',leads:'Leads',clientes:'Clientes',proyectos:'Proyectos',presupuestos:'Presupuestos',pagos:'Pagos y Facturación',empleados:'Empleados',proveedores:'Proveedores'};
+  document.getElementById('page-title').textContent=titles[id]||id;
+  document.getElementById('breadcrumb').textContent='/ '+id;
+  document.getElementById('back-btn').classList.remove('visible');
+  navHistory=[];currentSection=id;
+  if(id==='leads') refreshKanban();
+}
+
+function openDetail(type,id){
+  navHistory.push({section:currentSection,detailType:type,detailId:id});
+  currentSection='detail';
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('detail').classList.add('active');
+  document.getElementById('back-btn').classList.add('visible');
+  renderDetail(type,id);
+}
+
+function goBack(){
+  if(!navHistory.length){showSection('inicio');return;}
+  const prev=navHistory.pop();
+  if(prev.section==='detail'&&navHistory.length){
+    const pp=navHistory[navHistory.length-1];
+    navHistory.pop();
+    openDetail(pp.detailType,pp.detailId);
+  } else {
+    showSection(prev.section);
+  }
+}
+
+function arrow(){return `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text3)" stroke-width="1.5"><path d="M4 2l4 4-4 4"/></svg>`;}
+function arrowAccent(){return `<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="var(--accent)" stroke-width="1.8"><path d="M5 2l5 5-5 5"/></svg>`;}
+
+function renderDetail(type,id){
+  const el=document.getElementById('detail');
+  if(type==='proyecto')el.innerHTML=renderProyecto(id);
+  else if(type==='cliente')el.innerHTML=renderCliente(id);
+  else if(type==='proveedor')el.innerHTML=renderProveedor(id);
+  else if(type==='lead')el.innerHTML=renderLead(id);
+  const t={proyecto:'Detalle de proyecto',cliente:'Ficha de cliente',proveedor:'Ficha de proveedor',lead:'Ficha de lead'};
+  document.getElementById('page-title').textContent=t[type]||'Detalle';
+  document.getElementById('breadcrumb').textContent='/ detalle';
+}
+
+function renderProyecto(id){
+  const p=DB.proyectos[id];const c=DB.clientes[p.cliente];
+  const barC=barColors[p.estado]||'var(--blue)';
+  const provHTML=p.proveedores.map(vid=>{
+    const v=DB.proveedores[vid];
+    return `<div class="supplier-row" onclick="openDetail('proveedor','${vid}')">
+      <div class="av ${avProv[vid]}" style="width:32px;height:32px;font-size:11px">${provIcons[vid]}</div>
+      <div style="flex:1"><div class="supplier-name">${v.nombre}</div><div class="supplier-cat">${v.cat}</div></div>
+      <span class="supplier-amt">${v.ordenes[0].monto}</span>${arrow()}
+    </div>`;
+  }).join('');
+  const initials=c.nombre.split(' ').map(w=>w[0]).slice(0,2).join('');
+  return `
+<div class="detail-header">
+  <div><div class="detail-title">${p.nombre}</div><div class="detail-sub">Proyecto · ${p.cot}</div></div>
+  <span class="badge ${p.badgeClass}">${p.estado}</span>
+</div>
+<div class="detail-grid three">
+  <div class="info-block">
+    <div class="info-block-title">Cronograma</div>
+    <div class="info-row"><span class="info-key">Inicio</span><span class="info-val">${p.inicio}</span></div>
+    <div class="info-row"><span class="info-key">Fin estimado</span><span class="info-val">${p.fin}</span></div>
+    <div class="info-row"><span class="info-key">Equipo</span><span class="info-val">${p.equipo} personas</span></div>
+    <div class="info-row"><span class="info-key">Líder</span><span class="info-val">${p.lider}</span></div>
+  </div>
+  <div class="info-block">
+    <div class="info-block-title">Financiero</div>
+    <div class="info-row"><span class="info-key">Presupuesto</span><span class="info-val">${p.presupuesto}</span></div>
+    <div class="info-row"><span class="info-key">Cotización</span><span class="info-val mono">${p.cot}</span></div>
+    <div class="info-row"><span class="info-key">Facturas</span><span class="info-val" style="font-size:11px">${p.facturas.join(', ')}</span></div>
+  </div>
+  <div class="info-block">
+    <div class="info-block-title">Avance general</div>
+    <div style="font-size:30px;font-weight:300;color:var(--text);margin:6px 0 4px">${p.avance}%</div>
+    <div class="progress-wide"><div class="progress-wide-fill" style="width:${p.avance}%;background:${barC}"></div></div>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px;font-family:var(--mono)">${p.avance<100?`${100-p.avance}% restante`:'Finalizado'}</div>
+  </div>
+</div>
+<div class="detail-grid">
+  <div class="info-block">
+    <div class="info-block-title">Cliente vinculado</div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;cursor:pointer;border-bottom:1px solid var(--border)" onclick="openDetail('cliente','${p.cliente}')">
+      <div class="av ${avColors[p.cliente]}" style="width:40px;height:40px;font-size:14px">${initials}</div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500;color:var(--text)">${c.nombre}</div>
+        <div style="font-size:12px;color:var(--text3)">${c.contacto} · ${c.email}</div>
+      </div>
+      ${arrowAccent()}
+    </div>
+    <div class="info-row"><span class="info-key">Teléfono</span><span class="info-val mono">${c.tel}</span></div>
+    <div class="info-row"><span class="info-key">Dirección</span><span class="info-val" style="font-size:12px">${c.dir}</span></div>
+  </div>
+  <div class="info-block">
+    <div class="info-block-title">Proveedores en este proyecto</div>
+    ${provHTML||'<div style="color:var(--text3);font-size:13px;padding:10px 0">Sin proveedores asignados</div>'}
+  </div>
+</div>
+<div class="info-block">
+  <div class="info-block-title">Descripción</div>
+  <p style="font-size:13px;color:var(--text2);line-height:1.75;padding-top:6px">${p.descripcion}</p>
+</div>`;
+}
+
+function renderCliente(id){
+  const c=DB.clientes[id];
+  const initials=c.nombre.split(' ').map(w=>w[0]).slice(0,2).join('');
+  const provSet=new Set();
+  c.proyectos.forEach(pid=>DB.proyectos[pid].proveedores.forEach(v=>provSet.add(v)));
+  const provChips=[...provSet].map(vid=>{
+    const v=DB.proveedores[vid];
+    return `<span class="link-chip" onclick="openDetail('proveedor','${vid}')"><span class="link-chip-dot" style="background:var(--green)"></span>${v.nombre}</span>`;
+  }).join('');
+  const proyHTML=c.proyectos.map(pid=>{
+    const p=DB.proyectos[pid];const barC=barColors[p.estado]||'var(--blue)';
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('proyecto','${pid}')">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div><div style="font-size:13.5px;font-weight:500;color:var(--text)">${p.nombre}</div><div style="font-size:12px;color:var(--text3)">${p.presupuesto} · Líder: ${p.lider}</div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span class="badge ${p.badgeClass}">${p.estado}</span>${arrow()}</div>
+      </div>
+      <div class="proj-bar"><div class="proj-bar-fill" style="width:${p.avance}%;background:${barC}"></div></div>
+      <div class="proj-pct" style="margin-top:3px">${p.avance}% completado</div>
+    </div>`;
+  }).join('')||'<div style="color:var(--text3);font-size:13px;padding:12px 0">Sin proyectos asociados aún</div>';
+  return `
+<div class="detail-header">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="av ${avColors[id]}" style="width:48px;height:48px;font-size:15px">${initials}</div>
+    <div><div class="detail-title">${c.nombre}</div><div class="detail-sub">${c.tipo} · ${c.contacto}</div></div>
+  </div>
+  <span class="badge ${c.badgeClass}">${c.badgeTxt}</span>
+</div>
+<div class="detail-grid">
+  <div class="info-block">
+    <div class="info-block-title">Datos de contacto</div>
+    <div class="info-row"><span class="info-key">Email</span><span class="info-val mono" style="font-size:12px">${c.email}</span></div>
+    <div class="info-row"><span class="info-key">Teléfono</span><span class="info-val mono">${c.tel}</span></div>
+    <div class="info-row"><span class="info-key">Tipo</span><span class="info-val">${c.tipo}</span></div>
+    <div class="info-row"><span class="info-key">Dirección</span><span class="info-val" style="font-size:12px">${c.dir}</span></div>
+  </div>
+  <div class="info-block">
+    <div class="info-block-title">Proveedores usados en sus proyectos</div>
+    <div style="padding-top:8px">${provChips||'<span style="color:var(--text3);font-size:13px">Sin proyectos activos</span>'}</div>
+  </div>
+</div>
+<div class="info-block">
+  <div class="info-block-title">Proyectos <span style="font-size:10px;background:var(--blue-bg);color:var(--blue);padding:2px 8px;border-radius:10px;margin-left:6px">${c.proyectos.length}</span></div>
+  ${proyHTML}
+</div>`;
+}
+
+function renderProveedor(id){
+  const v=DB.proveedores[id];
+  const proyHTML=v.proyectos.map(pid=>{
+    const p=DB.proyectos[pid];const c=DB.clientes[p.cliente];
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openDetail('proyecto','${pid}')">
+      <div style="flex:1">
+        <div style="font-size:13.5px;font-weight:500;color:var(--text)">${p.nombre}</div>
+        <div style="font-size:12px;color:var(--text3)">Cliente: <span style="color:var(--text2)">${c.nombre}</span> · <span class="badge ${p.badgeClass}" style="vertical-align:middle">${p.estado}</span></div>
+      </div>${arrow()}
+    </div>`;
+  }).join('')||'<div style="color:var(--text3);font-size:13px;padding:10px 0">Sin proyectos activos</div>';
+  const ordenesHTML=v.ordenes.map(o=>`<div class="info-row"><span class="info-key">${o.desc}</span><span class="info-val mono">${o.monto} <span style="color:var(--text3);font-weight:400;font-size:11px">· ${o.fecha}</span></span></div>`).join('');
+  const clientesSet=new Set(v.proyectos.map(pid=>DB.proyectos[pid].cliente));
+  const clienteChips=[...clientesSet].map(cid=>{
+    const cl=DB.clientes[cid];
+    return `<span class="link-chip" onclick="openDetail('cliente','${cid}')"><span class="link-chip-dot" style="background:var(--blue)"></span>${cl.nombre}</span>`;
+  }).join('');
+  return `
+<div class="detail-header">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="av ${avProv[id]}" style="width:48px;height:48px;font-size:15px">${provIcons[id]}</div>
+    <div><div class="detail-title">${v.nombre}</div><div class="detail-sub">${v.cat} · ${v.contacto}</div></div>
+  </div>
+  <span class="badge ${v.badgeClass}">${v.badgeTxt}</span>
+</div>
+<div class="detail-grid">
+  <div class="info-block">
+    <div class="info-block-title">Datos de contacto</div>
+    <div class="info-row"><span class="info-key">Email</span><span class="info-val mono" style="font-size:12px">${v.email}</span></div>
+    <div class="info-row"><span class="info-key">Teléfono</span><span class="info-val mono">${v.tel}</span></div>
+    <div class="info-row"><span class="info-key">Categoría</span><span class="info-val">${v.cat}</span></div>
+    <div class="info-row"><span class="info-key">Plazo de pago</span><span class="info-val">${v.plazo}</span></div>
+  </div>
+  <div class="info-block">
+    <div class="info-block-title">Clientes asociados (vía proyectos)</div>
+    <div style="padding-top:8px">${clienteChips||'<span style="color:var(--text3);font-size:13px">Sin clientes activos</span>'}</div>
+    <div style="margin-top:14px"><div class="info-block-title" style="margin-bottom:8px">Órdenes recientes</div>${ordenesHTML}</div>
+  </div>
+</div>
+<div class="info-block">
+  <div class="info-block-title">Proyectos donde participa <span style="font-size:10px;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:10px;margin-left:6px">${v.proyectos.length}</span></div>
+  ${proyHTML}
+</div>`;
+}
+
+/* LEADS VIEW TOGGLE */
+function switchLeadView(view,btn){
+  document.getElementById('leads-kanban').style.display=view==='kanban'?'block':'none';
+  document.getElementById('leads-tabla').style.display=view==='tabla'?'block':'none';
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(view==='tabla') refreshLeadTabla();
+  if(view==='kanban') refreshKanban();
+  // reapply any active filter after render
+  if(activeLeadFilter){
+    const tmp=activeLeadFilter;
+    activeLeadFilter=null;
+    filterLeads(tmp);
+  }
+}
+
+function refreshKanban(){
+  const grid=document.getElementById('kanban-grid');
+  if(!grid) return;
+  const etapaOrder=['Nuevo contacto','Contactado','Calificado','Propuesta enviada','Negociación','Descartado'];
+  const etapaDot={'Nuevo contacto':'#9a9690','Contactado':'#7b6fad','Calificado':'var(--blue)','Propuesta enviada':'var(--amber)','Negociación':'var(--green)','Descartado':'var(--red)'};
+  // Build cols dynamically from DB
+  const cols=etapaOrder.map(etapa=>({
+    etapa,
+    dot:etapaDot[etapa],
+    ids:Object.keys(DB.leads).filter(id=>DB.leads[id].etapa===etapa)
+  }));
+  const tempClass={Caliente:'score-hot',Tibio:'score-warm','Frío':'score-cold'};
+  const tempLabel={Caliente:'&#9670; Caliente',Tibio:'&#9670; Tibio','Frío':'&#9670; Frío'};
+  const fmtVal=v=>v.replace('$','$').replace(',000,000','M').replace(',000','K').replace(/\$(\d+)M/,(_,n)=>'$'+n+'M').replace(/\$(\d+)K/,(_,n)=>'$'+n+'K');
+
+  grid.innerHTML=cols.map(col=>{
+    const cards=col.ids.map(id=>{
+      const l=DB.leads[id];
+      if(!l) return '';
+      const acciones=l.acciones||[];
+      const pendientes=acciones.filter(a=>!a.hecho).length;
+      const total=acciones.length;
+      let accionBadge='';
+      if(total>0){
+        if(pendientes===0){
+          accionBadge=`<div style="margin-top:7px">
+            <span style="display:inline-flex;align-items:center;gap:4px;font-size:10.5px;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:10px;font-weight:500">
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1.5 4.5l2 2L7.5 2"/></svg>
+              Todo listo
+            </span>
+          </div>`;
+        } else {
+          accionBadge=`<div style="margin-top:7px">
+            <span style="display:inline-flex;align-items:center;gap:4px;font-size:10.5px;background:var(--amber-bg);color:var(--amber);padding:2px 8px;border-radius:10px;font-weight:500">
+              <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><circle cx="4.5" cy="4.5" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 2.8v1.9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="4.5" cy="6.2" r=".45" fill="currentColor"/></svg>
+              ${pendientes} pendiente${pendientes>1?'s':''}
+            </span>
+          </div>`;
+        }
+      }
+      // format value
+      const rawVal=l.valor.replace(/[^\d]/g,'');
+      const num=parseInt(rawVal);
+      const dispVal=num>=1000000?'$'+(num/1000000).toFixed(1).replace('.0','')+'M':num>=1000?'$'+(num/1000).toFixed(0)+'K':l.valor;
+      return `<div class="lead-card" onclick="openDetail('lead','${id}')">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:3px">
+          <div class="lead-name">${l.nombre}</div>
+          <span class="lead-score ${tempClass[l.temp]||''}">${tempLabel[l.temp]||l.temp}</span>
+        </div>
+        <div class="lead-co">${l.empresa}</div>
+        <div class="lead-meta"><span class="lead-val">${dispVal}</span><span>${l.ultimoContacto}</span></div>
+        ${accionBadge}
+      </div>`;
+    }).join('');
+    const isDescartado=col.etapa==='Descartado';
+    const isContactado=col.etapa==='Contactado';
+    const emptyMsg={
+      'Descartado':'Sin leads<br>descartados',
+      'Nuevo contacto':'Sin leads<br>nuevos',
+      'Contactado':'Sin leads<br>contactados',
+      'Calificado':'Sin leads<br>calificados',
+      'Propuesta enviada':'Sin propuestas<br>enviadas',
+      'Negociación':'Sin leads en<br>negociación'
+    }[col.etapa]||'Sin leads';
+    return `<div class="pipeline-col" style="${isDescartado?'opacity:0.75':''}">
+      <div class="pipeline-head" style="${isDescartado?'background:rgba(224,92,92,0.08)':isContactado?'background:rgba(123,111,173,0.1)':''}">
+        <div class="pipeline-head-label"><span class="pipeline-dot" style="background:${col.dot}"></span>${col.etapa}</div>
+        <span class="pipeline-count" style="${isDescartado?'background:rgba(224,92,92,0.12);color:var(--red)':isContactado?'background:rgba(123,111,173,0.18);color:#7b6fad':''}">${col.ids.length}</span>
+      </div>
+      ${cards||`<div style="padding:16px 12px;font-size:12px;color:var(--text3);text-align:center;font-style:italic;line-height:1.6">${emptyMsg}</div>`}
+    </div>`;
+  }).join('');
+}
+
+function refreshLeadTabla(){
+  const tbody=document.getElementById('leads-tabla-body');
+  if(!tbody) return;
+  const orden=['estevez','horizon','mendoza','nordika','alvarado','maria','romero','diaz'];
+  tbody.innerHTML=orden.map(id=>{
+    const l=DB.leads[id];
+    const pendientes=(l.acciones||[]).filter(a=>!a.hecho).length;
+    const total=(l.acciones||[]).length;
+    const completadas=total-pendientes;
+    let accionCell='<span style="color:var(--text3);font-size:12px">—</span>';
+    if(total>0){
+      if(pendientes===0){
+        accionCell=`<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;background:var(--green-bg);color:var(--green);padding:3px 9px;border-radius:20px;font-weight:500"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 5l2.5 2.5L8 3"/></svg>Todo listo</span>`;
+      } else {
+        accionCell=`<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;background:var(--amber-bg);color:var(--amber);padding:3px 9px;border-radius:20px;font-weight:500"><svg width="9" height="9" viewBox="0 0 9 9" fill="none"><circle cx="4.5" cy="4.5" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 2.5v2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="4.5" cy="6.5" r=".5" fill="currentColor"/></svg>${pendientes} pendiente${pendientes>1?'s':''}</span>`;
+      }
+    }
+    const tempIcons={Caliente:'score-hot',Tibio:'score-warm','Frío':'score-cold'};
+    const tempLabels={Caliente:'&#9670; Caliente',Tibio:'&#9670; Tibio','Frío':'&#9670; Frío'};
+    return `<tr class="clickable" onclick="openDetail('lead','${id}')">
+      <td class="name-col">${l.nombre}<br><span style="font-weight:400;color:var(--text3);font-size:11.5px">${l.empresa}</span></td>
+      <td>${l.tipo}</td>
+      <td class="mono">${l.valor}</td>
+      <td><span class="badge ${l.badgeClass}" style="${l.etapa==='Descartado'?'text-decoration:line-through;opacity:.7':''}">${l.etapa}</span></td>
+      <td><span class="lead-score ${tempIcons[l.temp]||''}" style="font-size:11px">${tempLabels[l.temp]||l.temp}</span></td>
+      <td>${accionCell}</td>
+      <td>${l.asignado}</td>
+      <td class="mono">${l.ultimoContacto}</td>
+    </tr>`;
+  }).join('');
+}
+
+let activeLeadFilter=null;
+
+function filterLeads(type){
+  document.querySelectorAll('[id^="lfilt-"]').forEach(c=>c.classList.remove('selected'));
+  const banner=document.getElementById('lead-filter-banner');
+  const txt=document.getElementById('lead-filter-text');
+
+  // toggle off if same clicked again
+  if(activeLeadFilter===type||!type){
+    activeLeadFilter=null;
+    banner.style.display='none';
+    applyLeadFilter(null);
+    return;
+  }
+  activeLeadFilter=type;
+  document.getElementById('lfilt-'+type)?.classList.add('selected');
+  banner.style.display='flex';
+
+  const configs={
+    todos:      {txt:'Todos los leads (8)',           fn:()=>true},
+    pipeline:   {txt:'Leads activos en el pipeline',  fn:id=>['Contactado','Calificado','Propuesta enviada','Negociación'].includes(DB.leads[id].etapa)},
+    cierre:     {txt:'Leads en negociación',           fn:id=>DB.leads[id].etapa==='Negociación'},
+    perdidos:   {txt:'Leads fríos / sin avance',      fn:id=>DB.leads[id].temp==='Frío'},
+    descartados:{txt:'Leads descartados',              fn:id=>DB.leads[id].etapa==='Descartado'},
+  };
+  const cfg=configs[type];
+  if(!cfg) return;
+  txt.textContent=cfg.txt;
+  applyLeadFilter(cfg.fn);
+}
+
+function applyLeadFilter(fn){
+  // --- TABLA ---
+  const leadKeys=Object.keys(DB.leads);
+  const rows=document.querySelectorAll('#leads-tabla tr.clickable');
+  rows.forEach((row,i)=>{
+    const key=leadKeys[i];
+    if(!key) return;
+    const match=!fn||fn(key);
+    row.style.opacity=match?'1':'0.25';
+    row.style.background=match&&fn?'rgba(232,162,74,0.05)':'';
+    row.style.transition='opacity .2s,background .2s';
+  });
+
+  // --- KANBAN ---
+  const cards=document.querySelectorAll('#kanban-grid .lead-card');
+  // Each card has onclick="openDetail('lead','ID')"
+  cards.forEach(card=>{
+    const match_attr=card.getAttribute('onclick')||'';
+    const m=match_attr.match(/openDetail\('lead','([^']+)'\)/);
+    const id=m?m[1]:null;
+    const match=!fn||!id||fn(id);
+    card.style.opacity=match?'1':'0.2';
+    card.style.transform=match?'':'scale(0.97)';
+    card.style.transition='opacity .2s,transform .2s';
+    if(match&&fn&&id){
+      card.style.outline='1.5px solid var(--accent)';
+      card.style.outlineOffset='0px';
+    } else {
+      card.style.outline='none';
+    }
+  });
+}
+
+/* FILTER PROYECTOS */
+let activeFilter=null;
+function filterProyectos(status){
+  const cards=document.querySelectorAll('#proj-list .proj-card');
+  const noRes=document.getElementById('no-results');
+  const lbl=document.getElementById('filter-label-text');
+  const clearBtn=document.getElementById('clear-filter-btn');
+  // toggle off if same filter clicked
+  if(activeFilter===status){status=null;}
+  activeFilter=status;
+  // reset all selected states
+  document.querySelectorAll('.metric-card.clickable').forEach(c=>c.classList.remove('selected'));
+  if(status){
+    const el=document.getElementById('filt-'+status);
+    if(el)el.classList.add('selected');
+    clearBtn.style.display='inline-flex';
+    const labels={'En progreso':'en progreso','Retraso':'con retraso','Completado':'completados','Cancelado':'cancelados'};
+    lbl.textContent=labels[status]||status;
+  } else {
+    clearBtn.style.display='none';
+    lbl.textContent='todos los proyectos';
+  }
+  let visible=0;
+  cards.forEach(card=>{
+    const s=card.getAttribute('data-status');
+    const show=!status||s===status;
+    card.style.display=show?'block':'none';
+    if(show)visible++;
+  });
+  noRes.style.display=visible===0?'block':'none';
+}
+
+let currentLeadId=null;
+
+function renderLead(id){
+  currentLeadId=id;
+  const l=DB.leads[id];
+  const initials=l.nombre.split(' ').map(w=>w[0]).slice(0,2).join('');
+  const avMap={estevez:'av-a',horizon:'av-c',mendoza:'av-b',nordika:'av-e',alvarado:'av-d',maria:'av-a',romero:'av-b',diaz:'av-c'};
+  const av=avMap[id]||'av-a';
+  const tempLabel={Caliente:'&#9670; Caliente',Tibio:'&#9670; Tibio','Frío':'&#9670; Frío'};
+  const steps=l.etapa==='Descartado'?['Nuevo contacto','Descartado']:['Nuevo contacto','Contactado','Calificado','Propuesta enviada','Negociación','Cerrado'];
+  const cur=steps.indexOf(l.etapa);
+  const stepsHTML=steps.map((s,i)=>{
+    const done=i<cur,active=i===cur;
+    const bg=done?'var(--green)':active?'var(--amber)':'var(--surface3)';
+    const tc=done||active?'var(--text)':'var(--text3)';
+    const line=i>0?`<div style="position:absolute;top:9px;right:50%;left:-50%;height:2px;background:${done?'var(--green)':'var(--border2)'}"></div>`:'';
+    const check=done?'<svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2.5"><path d="M2 5l2.5 2.5L8 3"/></svg>':'';
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative">${line}<div style="width:18px;height:18px;border-radius:50%;background:${bg};z-index:1;display:flex;align-items:center;justify-content:center">${check}</div><span style="font-size:10px;font-family:var(--mono);color:${tc};text-align:center;line-height:1.3">${s}</span></div>`;
+  }).join('');
+  return `
+<div class="detail-header">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="av ${av}" style="width:50px;height:50px;font-size:16px">${initials}</div>
+    <div><div class="detail-title">${l.nombre}</div><div class="detail-sub">${l.empresa} · ${l.tipo}</div></div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+    <span class="badge ${l.badgeClass}">${l.etapa}</span>
+    <span class="lead-score ${l.tempClass}" style="font-size:12px">${tempLabel[l.temp]||l.temp}</span>
+    ${l.etapa!=='Descartado'?`<button onclick="descartarLead('${id}')" style="margin-top:4px;font-size:11px;padding:3px 10px;border-radius:var(--r);border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text3)'">Descartar lead</button>`:`<button onclick="restaurarLead('${id}')" style="margin-top:4px;font-size:11px;padding:3px 10px;border-radius:var(--r);border:1px solid var(--green);background:var(--green-bg);color:var(--green);cursor:pointer">Restaurar lead</button>`}
+  </div>
+</div>
+<div class="info-block" style="margin-bottom:16px">
+  <div class="info-block-title">Etapa del pipeline</div>
+  <div style="display:flex;align-items:flex-start;gap:0;margin-top:14px;padding:0 12px">${stepsHTML}</div>
+</div>
+<div class="detail-grid three">
+  <div class="info-block">
+    <div class="info-block-title">Datos de contacto</div>
+    <div class="info-row"><span class="info-key">Email</span><span class="info-val mono" style="font-size:12px">${l.email}</span></div>
+    <div class="info-row"><span class="info-key">Teléfono</span><span class="info-val mono">${l.tel}</span></div>
+    <div class="info-row"><span class="info-key">Empresa</span><span class="info-val">${l.empresa}</span></div>
+    <div class="info-row"><span class="info-key">Fuente</span><span class="info-val">${l.fuente}</span></div>
+    <div class="info-row"><span class="info-key">Ingresó</span><span class="info-val">${l.fechaIngreso}</span></div>
+  </div>
+  <div class="info-block">
+    <div class="info-block-title">Oportunidad</div>
+    <div class="info-row"><span class="info-key">Valor estimado</span><span class="info-val" style="color:var(--amber);font-size:17px;font-weight:300">${l.valor}</span></div>
+    <div class="info-row"><span class="info-key">Tipo de obra</span><span class="info-val">${l.tipo}</span></div>
+    <div class="info-row"><span class="info-key">Asignado a</span><span class="info-val">${l.asignado}</span></div>
+    <div class="info-row"><span class="info-key">Último contacto</span><span class="info-val">${l.ultimoContacto}</span></div>
+  </div>
+  <div class="info-block" id="acciones-block">
+    ${renderAccionesBlock(id)}
+  </div>
+</div>
+<div class="detail-grid">
+  <div class="info-block">
+    <div class="info-block-title">Descripción del proyecto</div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.75;padding-top:6px">${l.descripcion}</p>
+  </div>
+  <div class="info-block" id="historial-block">
+    ${renderHistorialBlock(id)}
+  </div>
+</div>`;
+}
+
+function renderAccionesBlock(id){
+  const l=DB.leads[id];
+  const acciones=l.acciones||[];
+  const pendientes=acciones.filter(a=>!a.hecho).length;
+  const completadas=acciones.filter(a=>a.hecho).length;
+  const tareasHTML=acciones.map((a,i)=>`
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);group" id="tarea-${id}-${i}">
+      <div onclick="toggleAccion('${id}',${i})" style="width:18px;height:18px;border-radius:4px;border:1.5px solid ${a.hecho?'var(--green)':'var(--border2)'};background:${a.hecho?'var(--green)':'transparent'};flex-shrink:0;cursor:pointer;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s">
+        ${a.hecho?'<svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="white" stroke-width="2.5"><path d="M2 5.5l2.5 2.5L9 3"/></svg>':''}
+      </div>
+      <span style="flex:1;font-size:13px;color:${a.hecho?'var(--text3)':'var(--text2)'};line-height:1.65;text-decoration:${a.hecho?'line-through':'none'};transition:all .2s">${a.texto}</span>
+      <button onclick="deleteAccion('${id}',${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 2px;line-height:1;flex-shrink:0;opacity:0.4" onmouseover="this.style.opacity=1;this.style.color='var(--red)'" onmouseout="this.style.opacity=0.4;this.style.color='var(--text3)'">×</button>
+    </div>`).join('');
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="info-block-title" style="margin-bottom:0">
+        Próximas acciones
+        ${pendientes>0?`<span style="font-size:10px;background:var(--amber-bg);color:var(--amber);padding:2px 8px;border-radius:10px;margin-left:6px">${pendientes} pendiente${pendientes>1?'s':''}</span>`:''}
+        ${completadas>0&&pendientes===0?`<span style="font-size:10px;background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:10px;margin-left:6px">✓ Todo listo</span>`:''}
+      </div>
+      <button onclick="toggleAddAccion()" class="btn btn-ghost" id="btn-add-acc" style="font-size:12px;padding:4px 12px">+ Agregar</button>
+    </div>
+    <div id="add-accion-form" style="display:none;margin-bottom:10px">
+      <div style="display:flex;gap:8px;align-items:flex-start">
+        <input class="form-input" id="accion-input" placeholder="Escribe la próxima acción a realizar..." style="flex:1;font-size:13px" onkeydown="if(event.key==='Enter')guardarAccion('${id}')">
+        <button class="btn btn-primary" onclick="guardarAccion('${id}')" style="font-size:12px;padding:7px 14px;flex-shrink:0">Agregar</button>
+      </div>
+    </div>
+    <div id="acciones-list">
+      ${tareasHTML||'<div style="color:var(--text3);font-size:13px;padding:14px 0;text-align:center">Sin acciones pendientes.<br><span style="font-size:12px">Agrega una acción para darle seguimiento a este lead.</span></div>'}
+    </div>
+    ${completadas>0?`<div style="margin-top:8px;font-size:11.5px;color:var(--text3);text-align:right;font-family:var(--mono)">${completadas} de ${acciones.length} completada${completadas>1?'s':''}</div>`:''}`;
+}
+
+function toggleAddAccion(){
+  const form=document.getElementById('add-accion-form');
+  const btn=document.getElementById('btn-add-acc');
+  const open=form.style.display==='none';
+  form.style.display=open?'block':'none';
+  btn.textContent=open?'✕ Cancelar':'+ Agregar';
+  if(open) setTimeout(()=>document.getElementById('accion-input')?.focus(),50);
+}
+
+function guardarAccion(id){
+  const input=document.getElementById('accion-input');
+  const texto=input?.value.trim();
+  if(!texto){
+    if(input){input.style.borderColor='var(--red)';input.placeholder='Escribe una acción...';}
+    return;
+  }
+  if(!DB.leads[id].acciones) DB.leads[id].acciones=[];
+  DB.leads[id].acciones.push({texto,hecho:false});
+  const block=document.getElementById('acciones-block');
+  if(block) block.innerHTML=renderAccionesBlock(id);
+  const t=document.getElementById('toast');
+  t.textContent='Acción agregada';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function toggleAccion(id,idx){
+  DB.leads[id].acciones[idx].hecho=!DB.leads[id].acciones[idx].hecho;
+  const block=document.getElementById('acciones-block');
+  if(block) block.innerHTML=renderAccionesBlock(id);
+  const hecho=DB.leads[id].acciones[idx].hecho;
+  const t=document.getElementById('toast');
+  t.textContent=hecho?'Acción marcada como completada':'Acción reabierta';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+function deleteAccion(id,idx){
+  if(!confirm('¿Eliminar esta acción?')) return;
+  DB.leads[id].acciones.splice(idx,1);
+  const block=document.getElementById('acciones-block');
+  if(block) block.innerHTML=renderAccionesBlock(id);
+}
+
+function renderHistorialBlock(id){
+  const l=DB.leads[id];
+  const typeIcon={Llamada:'📞',Email:'✉️',Reunión:'📅',Visita:'🏗️',Otro:'📋'};
+  const now=new Date();
+  const today=now.getDate()+' '+['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][now.getMonth()];
+  const histHTML=l.historial.map((h,i)=>`
+    <div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);position:relative">
+      <div style="font-size:17px;width:28px;text-align:center;flex-shrink:0;padding-top:1px">${typeIcon[h.tipo]||'📋'}</div>
+      <div style="flex:1">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:3px;display:flex;align-items:center;gap:8px">
+          <span style="color:var(--text2);font-weight:500">${h.tipo}</span>
+          <span>·</span>
+          <span>${h.fecha}</span>
+          ${h.isNew?'<span style="background:var(--green-bg);color:var(--green);padding:1px 7px;border-radius:10px;font-size:10px">Nuevo</span>':''}
+        </div>
+        <div style="font-size:13px;color:var(--text2);line-height:1.65">${h.nota}</div>
+      </div>
+      <button onclick="deleteActividad('${id}',${i})" style="position:absolute;top:10px;right:0;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:2px 4px;border-radius:4px;opacity:0;transition:opacity .15s" class="del-btn" title="Eliminar">×</button>
+    </div>`).join('');
+
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="info-block-title" style="margin-bottom:0">Historial de actividad <span style="font-size:10px;background:var(--blue-bg);color:var(--blue);padding:2px 8px;border-radius:10px;margin-left:6px">${l.historial.length}</span></div>
+      <button onclick="toggleAddActividad()" class="btn btn-ghost" style="font-size:12px;padding:4px 12px" id="btn-add-act">+ Agregar</button>
+    </div>
+    <div id="add-actividad-form" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:12px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div>
+          <div class="form-label" style="margin-bottom:4px">Tipo</div>
+          <select class="form-input" id="act-tipo" style="width:100%">
+            <option>Llamada</option>
+            <option>Email</option>
+            <option>Reunión</option>
+            <option>Visita</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div>
+          <div class="form-label" style="margin-bottom:4px">Fecha</div>
+          <input class="form-input" id="act-fecha" type="date" style="width:100%" value="${now.toISOString().split('T')[0]}">
+        </div>
+      </div>
+      <div style="margin-bottom:10px">
+        <div class="form-label" style="margin-bottom:4px">Nota / descripción</div>
+        <textarea class="form-input" id="act-nota" rows="3" placeholder="Describe lo que ocurrió en esta actividad..." style="width:100%;resize:vertical;line-height:1.6"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px">
+        <button class="btn btn-ghost" onclick="toggleAddActividad()" style="font-size:12px;padding:5px 12px">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarActividad('${id}')" style="font-size:12px;padding:5px 14px">Guardar actividad</button>
+      </div>
+    </div>
+    <div id="hist-list">
+      ${histHTML||'<div style="color:var(--text3);font-size:13px;padding:16px 0;text-align:center">Sin actividad registrada.<br><span style="font-size:12px">Usa el botón Agregar para registrar la primera.</span></div>'}
+    </div>
+    <style>
+      #hist-list .del-btn:hover{opacity:1!important;color:var(--red)!important}
+      #hist-list div:hover .del-btn{opacity:0.5}
+    </style>`;
+}
+
+function toggleAddActividad(){
+  const form=document.getElementById('add-actividad-form');
+  const btn=document.getElementById('btn-add-act');
+  const open=form.style.display==='none';
+  form.style.display=open?'block':'none';
+  btn.textContent=open?'✕ Cancelar':'+ Agregar';
+  if(open){
+    setTimeout(()=>document.getElementById('act-nota')?.focus(),50);
+  }
+}
+
+function guardarActividad(id){
+  const tipo=document.getElementById('act-tipo').value;
+  const fechaRaw=document.getElementById('act-fecha').value;
+  const nota=document.getElementById('act-nota').value.trim();
+  if(!nota){
+    document.getElementById('act-nota').style.borderColor='var(--red)';
+    document.getElementById('act-nota').placeholder='Por favor escribe una descripción...';
+    return;
+  }
+  // Format date nicely
+  const d=new Date(fechaRaw+'T12:00:00');
+  const meses=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const fechaFmt=d.getDate()+' '+meses[d.getMonth()]+' '+d.getFullYear();
+  // Prepend to historial (newest first)
+  DB.leads[id].historial.unshift({fecha:fechaFmt,tipo,nota,isNew:true});
+  DB.leads[id].ultimoContacto='Hoy';
+  // Re-render historial block only
+  const block=document.getElementById('historial-block');
+  if(block) block.innerHTML=renderHistorialBlock(id);
+  // Show toast
+  const t=document.getElementById('toast');
+  t.textContent='Actividad registrada correctamente';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function deleteActividad(id,idx){
+  if(!confirm('¿Eliminar esta actividad del historial?')) return;
+  DB.leads[id].historial.splice(idx,1);
+  const block=document.getElementById('historial-block');
+  if(block) block.innerHTML=renderHistorialBlock(id);
+}
+
+function descartarLead(id){
+  if(!confirm('¿Marcar este lead como Descartado? Quedará archivado y podrás restaurarlo en cualquier momento.')) return;
+  DB.leads[id].etapa='Descartado';
+  DB.leads[id].badgeClass='badge-red';
+  DB.leads[id].acciones=DB.leads[id].acciones||[];
+  DB.leads[id].acciones.unshift({texto:'Lead descartado — sin potencial confirmado',hecho:true});
+  renderDetail('lead',id);
+  const t=document.getElementById('toast');
+  t.textContent='Lead marcado como descartado';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function restaurarLead(id){
+  DB.leads[id].etapa='Nuevo contacto';
+  DB.leads[id].badgeClass='badge-gray';
+  renderDetail('lead',id);
+  const t=document.getElementById('toast');
+  t.textContent='Lead restaurado a Nuevo contacto';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+/* MODALS */
+const modalForms={
+  cliente:{title:'Nuevo cliente',html:`<div class="form-grid"><div class="form-group"><label class="form-label">Empresa / Nombre</label><input class="form-input" placeholder="Ej. Inversiones XYZ LLC"></div><div class="form-group"><label class="form-label">Tipo</label><select class="form-input"><option>Empresa</option><option>Particular</option></select></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="contacto@empresa.com"></div><div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" placeholder="+1 305 000 0000"></div><div class="form-group full"><label class="form-label">Dirección</label><input class="form-input" placeholder="Dirección completa"></div><div class="form-group"><label class="form-label">Estado</label><select class="form-input"><option>Prospecto</option><option>Activo</option><option>VIP</option></select></div></div>`},
+  proyecto:{title:'Nuevo proyecto',html:`<div class="form-grid"><div class="form-group full"><label class="form-label">Nombre del proyecto</label><input class="form-input" placeholder="Ej. Torre Residencial Norte"></div><div class="form-group"><label class="form-label">Cliente</label><select class="form-input"><option>Inversiones Caribe</option><option>LogiPak Corp</option><option>BeachView Partners</option><option>MiamiDev LLC</option></select></div><div class="form-group"><label class="form-label">Proveedor principal</label><select class="form-input"><option>Cemex Florida</option><option>Aceros del Sur</option><option>PintaCorp FL</option><option>Ferretería Central</option></select></div><div class="form-group"><label class="form-label">Contratista líder</label><select class="form-input"><option>Ing. Raúl Méndez</option><option>Ing. Sandra Torres</option><option>Ing. Carlos Fuentes</option></select></div><div class="form-group"><label class="form-label">Fecha inicio</label><input class="form-input" type="date"></div><div class="form-group"><label class="form-label">Fecha fin estimada</label><input class="form-input" type="date"></div><div class="form-group"><label class="form-label">Presupuesto ($)</label><input class="form-input" type="number" placeholder="0.00"></div><div class="form-group"><label class="form-label">Estado</label><select class="form-input"><option>Por iniciar</option><option>En progreso</option></select></div></div>`},
+  presupuesto:{title:'Nueva cotización',html:`<div class="form-grid"><div class="form-group"><label class="form-label">Código</label><input class="form-input" value="COT-2025-071"></div><div class="form-group"><label class="form-label">Cliente</label><select class="form-input"><option>Seleccionar...</option><option>Inversiones Caribe</option><option>LogiPak Corp</option><option>BeachView Partners</option></select></div><div class="form-group full"><label class="form-label">Concepto</label><input class="form-input" placeholder="Descripción del trabajo"></div><div class="form-group"><label class="form-label">Subtotal ($)</label><input class="form-input" type="number" placeholder="0.00"></div><div class="form-group"><label class="form-label">Impuestos (%)</label><input class="form-input" type="number" value="7"></div><div class="form-group"><label class="form-label">Fecha emisión</label><input class="form-input" type="date"></div><div class="form-group"><label class="form-label">Válida hasta</label><input class="form-input" type="date"></div></div>`},
+  pago:{title:'Nueva factura',html:`<div class="form-grid"><div class="form-group"><label class="form-label">N° Factura</label><input class="form-input" value="FAC-2025-123"></div><div class="form-group"><label class="form-label">Cliente</label><select class="form-input"><option>Seleccionar...</option><option>Inversiones Caribe</option><option>LogiPak Corp</option><option>BeachView Partners</option></select></div><div class="form-group"><label class="form-label">Proyecto</label><select class="form-input"><option>Torre Brickell</option><option>Almacén Doral</option><option>Oficinas Miami</option></select></div><div class="form-group full"><label class="form-label">Concepto</label><input class="form-input" placeholder="Avance de obra, etapa..."></div><div class="form-group"><label class="form-label">Monto ($)</label><input class="form-input" type="number" placeholder="0.00"></div><div class="form-group"><label class="form-label">Vencimiento</label><input class="form-input" type="date"></div></div>`},
+  empleado:{title:'Nuevo empleado',html:`<div class="form-grid"><div class="form-group"><label class="form-label">Nombre completo</label><input class="form-input" placeholder="Nombre y apellido"></div><div class="form-group"><label class="form-label">Cargo</label><select class="form-input"><option>Operario</option><option>Maestro de Obra</option><option>Supervisor</option><option>Contratista Líder</option><option>Arquitecto/a</option></select></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email"></div><div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" placeholder="+1 000 000 0000"></div><div class="form-group"><label class="form-label">Proyecto asignado</label><select class="form-input"><option>Sin asignar</option><option>Torre Brickell</option><option>Almacén Doral</option><option>Oficinas Miami</option></select></div><div class="form-group"><label class="form-label">Fecha ingreso</label><input class="form-input" type="date"></div></div>`},
+  lead:{title:'Nuevo lead',html:`<div class="form-grid"><div class="form-group"><label class="form-label">Nombre del contacto</label><input class="form-input" placeholder="Nombre y apellido"></div><div class="form-group"><label class="form-label">Empresa</label><input class="form-input" placeholder="Empresa o 'Particular'"></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="contacto@empresa.com"></div><div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" placeholder="+1 305 000 0000"></div><div class="form-group"><label class="form-label">Tipo de obra</label><select class="form-input"><option>Residencial</option><option>Comercial</option><option>Industrial</option><option>Mixto</option><option>Otro</option></select></div><div class="form-group"><label class="form-label">Valor estimado ($)</label><input class="form-input" type="number" placeholder="0.00"></div><div class="form-group"><label class="form-label">Etapa del pipeline</label><select class="form-input"><option>Nuevo contacto</option><option>Contactado</option><option>Calificado</option><option>Propuesta enviada</option><option>Negociación</option></select></div><div class="form-group"><label class="form-label">Temperatura</label><select class="form-input"><option>Frío</option><option>Tibio</option><option>Caliente</option></select></div><div class="form-group"><label class="form-label">Asignado a</label><select class="form-input"><option>Admin</option><option>Ing. Raúl Méndez</option><option>Ing. Sandra Torres</option><option>Ing. Carlos Fuentes</option></select></div><div class="form-group"><label class="form-label">Fuente del lead</label><select class="form-input"><option>Referido</option><option>Sitio web</option><option>Llamada entrante</option><option>Red social</option><option>Evento / feria</option><option>Otro</option></select></div><div class="form-group full"><label class="form-label">Notas</label><input class="form-input" placeholder="Descripción del proyecto o comentarios iniciales..."></div></div>`},
+  proveedor:{title:'Nuevo proveedor',html:`<div class="form-grid"><div class="form-group full"><label class="form-label">Nombre de empresa</label><input class="form-input" placeholder="Ej. Distribuidora Norte FL"></div><div class="form-group"><label class="form-label">Categoría</label><select class="form-input"><option>Concreto / cemento</option><option>Acero / estructuras</option><option>Eléctrico</option><option>Pintura / acabados</option><option>Herramientas</option></select></div><div class="form-group"><label class="form-label">Proyectos a vincular</label><select class="form-input"><option>Torre Brickell</option><option>Almacén Doral</option><option>Oficinas Miami</option></select></div><div class="form-group"><label class="form-label">Contacto principal</label><input class="form-input"></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email"></div><div class="form-group"><label class="form-label">Plazo de pago</label><select class="form-input"><option>Contado</option><option>15 días</option><option>30 días</option><option>60 días</option></select></div></div>`}
+};
+function openModal(type){const cfg=modalForms[type]||{title:'Nuevo registro',html:'<p style="color:var(--text2)">Formulario disponible.</p>'};document.getElementById('modal-title').textContent=cfg.title;document.getElementById('modal-body').innerHTML=cfg.html;document.getElementById('modal').classList.add('open');}
+function closeModal(e){if(!e||e.target===document.getElementById('modal'))document.getElementById('modal').classList.remove('open');}
+function saveModal(){closeModal();const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+</script>
+</body>
+</html>
